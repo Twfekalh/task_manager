@@ -9,15 +9,13 @@ abstract class TodoRemoteDataSource {
   Future<TodoModel> addTodo(TodoModel todo);
   Future<TodoModel> updateTodo(TodoModel todo);
   Future<bool> deleteTodo(int id);
-
-  // إضافة للحصول على مهمة واحدة
   Future<TodoModel> getSingleTodoRemote(int id);
 }
 
 class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   final Dio dio;
 
-  TodoRemoteDataSourceImpl({required this.dio});
+  TodoRemoteDataSourceImpl({required this.dio, required Object client});
 
   @override
   Future<List<TodoModel>> getTodos(

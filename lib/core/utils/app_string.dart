@@ -1,11 +1,11 @@
 class AppString {
   static const appName = "Todo App";
-  static const email = "Email";
+  // static const email = "Email";
   static const name = "Name";
   static const password = "Password";
   static const required = "Required";
-  static const firstName = "First Name";
-  static const lastName = "Last Name";
+  // static const firstName = "First Name";
+  // static const lastName = "Last Name";
   static const provideValidName = "Provide valid name";
   static const provideValidEmail = "Provide valid email";
   static const provideValidPassword = "Provide valid password";
@@ -32,4 +32,5 @@ class AppString {
   static const profile = "Profile";
   static const logout = "Logout";
   static const profileUpdated = "Profile Updated";
+  static const user = "user";
 }

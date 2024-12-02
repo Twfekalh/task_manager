@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:task_manager/core/utils/app_images_url.dart';
 import 'package:task_manager/core/utils/app_string.dart';
+import 'package:task_manager/features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart'; // تأكد من استيراد الـ LogInBloc
+import 'package:task_manager/core/widgets/custom_text_field.dart';
+import 'package:task_manager/core/widgets/rounded_button.dart';
+import 'package:task_manager/core/theme/app_color.dart';
 
-import '../../../../../core/theme/app_color.dart';
 import '../../../../../core/utils/vaildation_rules.dart';
-import '../../../../../core/widgets/custom_text_field.dart';
-import '../../../../../core/widgets/rounded_button.dart';
 
 class LoginViewBody extends StatefulWidget {
   const LoginViewBody({super.key});
@@ -16,13 +18,14 @@ class LoginViewBody extends StatefulWidget {
 
 class _LoginViewState extends State<LoginViewBody> {
   final _loginFormKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController =
+      TextEditingController(); // تم تعديل الاسم هنا ليكون username
   final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose(); // تم تعديل هنا ليتوافق مع username
     _passwordController.dispose();
     super.dispose();
   }
@@ -46,21 +49,20 @@ class _LoginViewState extends State<LoginViewBody> {
                     height: 100,
                   ),
                   const SizedBox(height: 16),
-                  // Email Field
+                  // Username Field: تم تعديل الاسم من Email إلى Username
                   CustomTextFormField(
-                    controller: _emailController,
+                    controller:
+                        _usernameController, // تم تغيير الـ controller هنا ليكون usernameController
                     validator: (val) {
                       if (val!.isEmpty) {
                         return AppString.required;
-                      } else if (!ValidationRules.emailValidation
-                          .hasMatch(val)) {
-                        return AppString.provideValidEmail;
                       }
                       return null;
                     },
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.text, // تغير إلى text بدل email
                     obscureText: false,
-                    hintText: AppString.email,
+                    hintText: AppString
+                        .user, // تم تعديل النص هنا ليكون Username بدلاً من Email
                     suffix: null,
                   ),
                   const SizedBox(height: 10),
@@ -96,8 +98,40 @@ class _LoginViewState extends State<LoginViewBody> {
                     buttonText: AppString.login,
                     onPressed: () {
                       if (_loginFormKey.currentState!.validate()) {
-                        // Handle login logic here
+                        // Triggering the LogInBloc
+                        BlocProvider.of<LogInBloc>(context).add(
+                          LoginButtonPressed(
+                            username: _usernameController
+                                .text, // تعديل هنا ليأخذ الـ username بدلاً من email
+                            password: _passwordController.text,
+                          ),
+                        );
                       }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  // BlocConsumer to handle different states
+                  BlocConsumer<LogInBloc, LogInState>(
+                    // لا يوجد تغيير هنا، هو للتعامل مع الحالات المختلفة
+                    listener: (context, state) {
+                      if (state is LogInFailure) {
+                        // Show error message on failure
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(state.errorMessage)),
+                        );
+                      } else if (state is LogInSuccess) {
+                        // Navigate to another screen or show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Logged In Successfully!")),
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is LogInLoading) {
+                        return const CircularProgressIndicator();
+                      }
+                      return Container();
                     },
                   ),
                 ],

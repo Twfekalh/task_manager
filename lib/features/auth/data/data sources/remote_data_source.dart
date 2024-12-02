@@ -1,4 +1,4 @@
-// lib/data/datasources/remote/user_remote_data_source.dart
+// lib/features/auth/data/data%20sources/remote_data_source.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:task_manager/features/auth/data/models/user_model.dart';
@@ -11,7 +11,7 @@ class UserRemoteDataSource {
   // تسجيل الدخول
   Future<UserModel> loginUser(String username, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/auth/login'),
+      Uri.parse('$baseUrl/docs/auth'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'username': username,

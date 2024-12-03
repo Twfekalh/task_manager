@@ -1,88 +1,106 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:task_manager/features/Todo/data/data_sources/TodoLocalDataSource.dart';
-import 'package:task_manager/features/Todo/data/data_sources/TodoRemoteDataSource.dart';
-import 'package:task_manager/features/Todo/domain/repositories/todo_repo.dart';
-import 'package:task_manager/features/Todo/domain/usecase/Add_Todo_UseCase.dart';
-import 'package:task_manager/features/Todo/domain/usecase/Delete_Todo_UseCase.dart';
-import 'package:task_manager/features/Todo/domain/usecase/Get_Single_Todo_UseCase.dart';
-import 'package:task_manager/features/Todo/domain/usecase/Get_Random_Todo_UseCase.dart';
-import 'package:task_manager/features/Todo/domain/usecase/Update_Todo_UseCase.dart';
-import 'package:task_manager/features/Todo/presentation/bloc/todo_bloc/todo_bloc_bloc.dart';
-import 'package:task_manager/features/auth/data/data%20sources/remote_data_source.dart';
-import 'package:task_manager/features/auth/data/data%20sources/local_user_data_source.dart';
-import 'package:task_manager/features/auth/data/repositories/user_repository_impl.dart';
-import 'package:task_manager/features/auth/domain/repositories/user_repositories.dart';
-import 'package:task_manager/features/auth/domain/use%20case/fetch_user_UseCase.dart';
-import 'package:task_manager/features/auth/domain/use%20case/login_user%20_UseCase.dart';
-import 'package:task_manager/features/auth/domain/use%20case/refresh_session_UseCase.dart';
-import 'package:task_manager/features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
+import 'package:task_manager/features/Todo/domain/usecase/get_todo_by_id_usecase.dart';
+import 'package:task_manager/features/Todo/domain/usecase/get_todos_usecase.dart';
 
+import '../../features/Todo/data/data_sources/TodoLocalDataSource.dart';
+import '../../features/Todo/data/data_sources/TodoRemoteDataSource.dart';
 import '../../features/Todo/data/repositories/todo_repository_Impl.dart';
-import '../../features/Todo/domain/usecase/get_todos_usecase.dart';
+import '../../features/Todo/domain/repositories/todo_repo.dart';
+import '../../features/Todo/domain/usecase/Add_Todo_UseCase.dart';
+import '../../features/Todo/domain/usecase/Delete_Todo_UseCase.dart';
+import '../../features/Todo/domain/usecase/Get_Random_Todo_UseCase.dart';
+import '../../features/Todo/domain/usecase/Get_Single_Todo_UseCase.dart';
 
-// الـ GetIt Instance
-final getIt = GetIt.instance;
+import '../../features/Todo/domain/usecase/Update_Todo_UseCase.dart';
+import '../../features/Todo/presentation/bloc/todo_bloc/todo_bloc_bloc.dart';
+import '../../features/auth/data/data sources/local_user_data_source.dart';
+import '../../features/auth/data/data sources/remote_data_source.dart';
+import '../../features/auth/data/repositories/user_repository_Impl.dart';
+import '../../features/auth/domain/repositories/user_repositories.dart';
+import '../../features/auth/domain/use case/fetch_user_UseCase.dart';
+import '../../features/auth/domain/use case/login_user _UseCase.dart';
+import '../../features/auth/domain/use case/refresh_session_UseCase.dart';
+import '../../features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
 
-void setuplocator() {
-  getIt.registerLazySingleton<http.Client>(() => http.Client());
+final sl = GetIt.instance;
 
-  getIt.registerLazySingleton<Dio>(() => Dio());
+Future<void> setupLocator() async {
+  // Registering HTTP and Dio clients
+  sl.registerLazySingleton<http.Client>(() => http.Client());
+  sl.registerLazySingleton<Dio>(() => Dio());
 
-  getIt.registerLazySingleton<TodoRemoteDataSource>(
-      () => TodoRemoteDataSourceImpl(client: getIt(), dio: getIt()));
+  // Registering Todo Data Sources
+  sl.registerLazySingleton<TodoRemoteDataSource>(
+    () => TodoRemoteDataSourceImpl(client: sl<http.Client>(), dio: sl<Dio>()),
+  );
+  sl.registerLazySingleton<TodoLocalDataSource>(
+    () => TodoLocalDataSourceImpl(sharedPreferences: sl()),
+  );
 
-  getIt.registerLazySingleton<TodoLocalDataSource>(
-      () => TodoLocalDataSourceImpl(sharedPreferences: getIt()));
-
-  getIt.registerLazySingleton<TodoRepository>(() => TodoRepositoryImpl(
-        remoteDataSource: getIt(),
-        localDataSource: getIt(),
-      ));
-
-  getIt.registerLazySingleton<GetTodosUseCase>(() => GetTodosUseCase(getIt()));
-  getIt.registerLazySingleton<AddTodoUseCase>(() => AddTodoUseCase(getIt()));
-  getIt.registerLazySingleton<UpdateTodoUseCase>(
-      () => UpdateTodoUseCase(getIt()));
-  getIt.registerLazySingleton<DeleteTodoUseCase>(
-      () => DeleteTodoUseCase(getIt()));
-  getIt.registerLazySingleton<GetSingleTodoUseCase>(
-      () => GetSingleTodoUseCase(getIt()));
-  getIt.registerLazySingleton<GetRandomTodoUseCase>(
-      () => GetRandomTodoUseCase(getIt()));
-
-  getIt.registerFactory<TodoBlocBloc>(() => TodoBlocBloc(
-        getAllTodos: getIt(),
-        getTodoById: getIt(),
-        addTodo: getIt(),
-        updateTodo: getIt(),
-        deleteTodo: getIt(),
-        getRandomTodo: getIt(),
-      ));
-
-  getIt.registerLazySingleton<UserRemoteDataSource>(
-      () => UserRemoteDataSource('https://dummyjson.com/auth/login'));
-
-  getIt.registerLazySingleton<LocalUserDataSource>(() => LocalUserDataSource());
-
-  getIt.registerLazySingleton<UserRepository>(
-    () => UserRepositoryImpl(
-      remoteDataSource: getIt(),
-      localDataSource: getIt(),
+  // Registering Todo Repository
+  sl.registerLazySingleton<TodoRepository>(
+    () => TodoRepositoryImpl(
+      remoteDataSource: sl<TodoRemoteDataSource>(),
+      localDataSource: sl<TodoLocalDataSource>(),
     ),
   );
 
-  getIt.registerLazySingleton<LoginUser>(() => LoginUser(getIt()));
-  getIt.registerLazySingleton<FetchUserData>(() => FetchUserData(getIt()));
-  getIt.registerLazySingleton<RefreshSession>(() => RefreshSession(getIt()));
+  // Registering Todo Use Cases
+  sl.registerLazySingleton<GetTodosUseCase>(
+      () => GetTodosUseCase(sl<TodoRepository>()));
+  sl.registerLazySingleton<AddTodoUseCase>(
+      () => AddTodoUseCase(sl<TodoRepository>()));
+  sl.registerLazySingleton<UpdateTodoUseCase>(
+      () => UpdateTodoUseCase(sl<TodoRepository>()));
+  sl.registerLazySingleton<DeleteTodoUseCase>(
+      () => DeleteTodoUseCase(sl<TodoRepository>()));
+  sl.registerLazySingleton<GetSingleTodoUseCase>(
+      () => GetSingleTodoUseCase(sl<TodoRepository>()));
+  sl.registerLazySingleton<GetRandomTodoUseCase>(
+      () => GetRandomTodoUseCase(sl<TodoRepository>()));
 
-  getIt.registerFactory<LogInBloc>(
+  sl.registerLazySingleton<GetTodoByIdUseCase>(
+      () => GetTodoByIdUseCase(sl<TodoRepository>()));
+
+  // Registering Todo Bloc
+  sl.registerFactory<TodoBlocBloc>(() => TodoBlocBloc(
+        getAllTodos: sl<GetTodosUseCase>(),
+        getTodoById: sl<GetTodoByIdUseCase>(),
+        addTodo: sl<AddTodoUseCase>(),
+        updateTodo: sl<UpdateTodoUseCase>(),
+        deleteTodo: sl<DeleteTodoUseCase>(),
+        getRandomTodo: sl<GetRandomTodoUseCase>(),
+      ));
+
+  // Registering Auth Data Sources
+  sl.registerLazySingleton<UserRemoteDataSource>(
+      () => UserRemoteDataSource('https://dummyjson.com/auth/login'));
+
+  sl.registerLazySingleton<LocalUserDataSource>(() => LocalUserDataSource());
+
+  // Registering Auth Repository
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl(
+      remoteDataSource: sl<UserRemoteDataSource>(),
+      localDataSource: sl<LocalUserDataSource>(),
+    ),
+  );
+
+  // Registering Auth Use Cases
+  sl.registerLazySingleton<LoginUser>(() => LoginUser(sl<UserRepository>()));
+  sl.registerLazySingleton<FetchUserData>(
+      () => FetchUserData(sl<UserRepository>()));
+  sl.registerLazySingleton<RefreshSession>(
+      () => RefreshSession(sl<UserRepository>()));
+
+  // Registering LogIn Bloc
+  sl.registerFactory<LogInBloc>(
     () => LogInBloc(
-      loginUser: getIt(),
-      fetchUserData: getIt(),
-      refreshSession: getIt(),
+      loginUser: sl<LoginUser>(),
+      fetchUserData: sl<FetchUserData>(),
+      refreshSession: sl<RefreshSession>(),
     ),
   );
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:task_manager/core/locator/locator.dart';
+import 'package:task_manager/core/locator/locator.dart'; // Import locator.dart
 import 'package:task_manager/core/theme/app_theme.dart';
 import 'package:task_manager/core/utils/app_string.dart';
 import 'package:task_manager/core/routers/routers.dart';
@@ -10,7 +10,7 @@ import 'features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  setuplocator();
+  setuplocator(); // Initialize the locator
   runApp(const MyApp());
 }
 
@@ -22,11 +22,13 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => getIt<LogInBloc>(),
+          create: (context) =>
+              sl<LogInBloc>(), // Correct way to access LogInBloc
         ),
         BlocProvider(
           create: (context) =>
-              getIt<TodoBlocBloc>()..add(GetAllTodosEvent(skip: 0, limit: 10)),
+              sl<TodoBlocBloc>() // Correct way to access TodoBloc
+                ..add(const GetAllTodosEvent(skip: 0, limit: 10)),
         ),
       ],
       child: MaterialApp.router(

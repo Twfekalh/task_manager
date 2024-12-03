@@ -20,10 +20,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     super.initState();
-    // إذا كان هناك مهمة قادمة من شاشة أخرى، نملأ الحقول بالقيم
+
     if (widget.todo != null) {
-      _titleController.text = widget.todo!.todo; // العنوان
-      _detailController.text = widget.todo!.details; // التفاصيل
+      _titleController.text = widget.todo!.todo;
+      _detailController.text = widget.todo!.details;
     }
   }
 
@@ -69,13 +69,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           todo: Todo(
                             id: 0,
                             todo: title,
-                            details: details, // تفاصيل المهمة
+                            details: details,
                             completed: false,
-                            userId: 1, // يمكنك تعديله بحسب الحاجة
+                            userId: 1,
                           ),
                         ));
                   }
-                  Navigator.pop(context); // العودة إلى الشاشة السابقة
+                  Navigator.pop(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('All fields are required')),

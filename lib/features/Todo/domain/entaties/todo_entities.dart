@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class Todo extends Equatable {
   final int id;
-  final String todo; // العنوان
+  final String todo;
   final String details;
   final bool completed;
   final int userId;

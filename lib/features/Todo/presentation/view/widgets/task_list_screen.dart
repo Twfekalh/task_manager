@@ -38,8 +38,7 @@ class TaskListScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AddTaskScreen(todo: todo), // تمرير المهمة
+                        builder: (context) => AddTaskScreen(todo: todo),
                       ),
                     );
                   },
@@ -49,9 +48,8 @@ class TaskListScreen extends StatelessWidget {
                         .add(DeleteTodoEvent(id: todo.id));
                   },
                   onComplete: () {
-                    // وضع المهام في حالة مكتملة
-                    context.read<TodoBlocBloc>().add(UpdateTodoEvent(
-                        todo: todo.copyWith(completed: true))); // اكتمال المهمة
+                    context.read<TodoBlocBloc>().add(
+                        UpdateTodoEvent(todo: todo.copyWith(completed: true)));
                   },
                 );
               },

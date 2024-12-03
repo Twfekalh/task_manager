@@ -15,4 +15,8 @@ class AppColor {
   static const Color snackBarRed = Color(0xffc72c41);
   static const Color snackBarGreen = Color(0xff2D6A4F);
   static const Color yellowColor = Colors.yellow;
+
+  static const Color appColor2 = Color(0xFFB39DDB);
+  static const Color borderColor2 = Color(0xFFE0E0E0);
+  static const Color errorColor2 = Color.fromARGB(255, 180, 106, 106);
 }

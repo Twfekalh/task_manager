@@ -5,6 +5,7 @@ import 'package:task_manager/core/theme/app_theme.dart';
 import 'package:task_manager/core/utils/app_string.dart';
 import 'package:task_manager/core/routers/routers.dart';
 
+import 'features/Todo/presentation/bloc/todo_bloc/todo_bloc_bloc.dart';
 import 'features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
 
 void main() {
@@ -22,6 +23,10 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => getIt<LogInBloc>(),
+        ),
+        BlocProvider(
+          create: (context) =>
+              getIt<TodoBlocBloc>()..add(GetAllTodosEvent(skip: 0, limit: 10)),
         ),
       ],
       child: MaterialApp.router(

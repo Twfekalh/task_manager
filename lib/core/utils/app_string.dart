@@ -6,12 +6,7 @@ class AppString {
   static const required = "Required";
   // static const firstName = "First Name";
   // static const lastName = "Last Name";
-  static const provideValidName = "Provide valid name";
-  static const provideValidEmail = "Provide valid email";
-  static const provideValidPassword = "Provide valid password";
-  static const register = "Register";
-  static const internalServerError = "Internal Server Error";
-  static const internetNotFound = "Internet not found";
+
   static const login = "Login";
   static const accountCreated = "Account created";
   static const searchByName = "Search by name";
@@ -29,8 +24,6 @@ class AppString {
   static const todoDeleted = "Todo deleted successfully";
   static const deleteTodo = "Delete Todo";
   static const areYouSureToDeleteTodo = "Are you sure to delete todo?";
-  static const profile = "Profile";
-  static const logout = "Logout";
-  static const profileUpdated = "Profile Updated";
+
   static const user = "user";
 }

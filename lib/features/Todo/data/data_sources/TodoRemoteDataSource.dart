@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:task_manager/core/errors/exception.dart';
 import 'package:task_manager/features/Todo/data/model/todo_model.dart';
 
+import '../../../../core/network/network_info.dart';
+
 abstract class TodoRemoteDataSource {
   Future<List<TodoModel>> getTodos({required int skip, required int limit});
   Future<TodoModel> getTodoById(int id);
@@ -14,12 +16,21 @@ abstract class TodoRemoteDataSource {
 
 class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   final Dio dio;
+  final NetworkInfo networkInfo; // Injected NetworkInfo
 
-  TodoRemoteDataSourceImpl({required this.dio, required Object client});
+  TodoRemoteDataSourceImpl({required this.dio, required this.networkInfo});
+
+  // Check network connection
+  Future<void> _checkNetworkConnection() async {
+    if (!await networkInfo.isConnected) {
+      throw NetworkException("No internet connection.");
+    }
+  }
 
   @override
   Future<List<TodoModel>> getTodos(
       {required int skip, required int limit}) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response =
         await dio.get('https://dummyjson.com/todos', queryParameters: {
       'limit': limit,
@@ -36,6 +47,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<TodoModel> getTodoById(int id) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.get('https://dummyjson.com/todos/$id');
 
     if (response.statusCode == 200) {
@@ -47,6 +59,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<TodoModel> getRandomTodo() async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.get('https://dummyjson.com/todos/random');
 
     if (response.statusCode == 200) {
@@ -58,6 +71,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<TodoModel> addTodo(TodoModel todo) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.post(
       'https://dummyjson.com/todos/add',
       data: todo.toJson(),
@@ -72,6 +86,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<TodoModel> updateTodo(TodoModel todo) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.put(
       'https://dummyjson.com/todos/${todo.id}',
       data: todo.toJson(),
@@ -86,6 +101,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<bool> deleteTodo(int id) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.delete('https://dummyjson.com/todos/$id');
 
     if (response.statusCode == 200) {
@@ -97,6 +113,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
 
   @override
   Future<TodoModel> getSingleTodoRemote(int id) async {
+    await _checkNetworkConnection(); // Check internet connection first
     final response = await dio.get('https://dummyjson.com/todos/$id');
 
     if (response.statusCode == 200) {

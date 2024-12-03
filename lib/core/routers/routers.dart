@@ -10,19 +10,19 @@ import '../../features/splash/view/splash_view.dart';
 
 final GoRouter router = GoRouter(
   routes: [
-    // GoRoute(
-    //   name: RoutersNames.splash,
-    //   path: '/',
-    //   builder: (context, state) => const SplashView(),
-    // ),
-    // GoRoute(
-    //   name: RoutersNames.login,
-    //   path: "/login",
-    //   builder: (context, state) => const LoginView(),
-    // ),
+    GoRoute(
+      name: RoutersNames.splash,
+      path: '/',
+      builder: (context, state) => const SplashView(),
+    ),
+    GoRoute(
+      name: RoutersNames.login,
+      path: "/login",
+      builder: (context, state) => const LoginView(),
+    ),
     GoRoute(
       name: RoutersNames.todo,
-      path: "/",
+      path: "/todo",
       builder: (context, state) => const TodoView(),
     ),
   ],

@@ -10,7 +10,7 @@ import 'features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  setuplocator(); // Initialize the locator
+  setupLocator();
   runApp(const MyApp());
 }
 
@@ -22,13 +22,11 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              sl<LogInBloc>(), // Correct way to access LogInBloc
+          create: (context) => sl<LogInBloc>(),
         ),
         BlocProvider(
-          create: (context) =>
-              sl<TodoBlocBloc>() // Correct way to access TodoBloc
-                ..add(const GetAllTodosEvent(skip: 0, limit: 10)),
+          create: (context) => sl<TodoBlocBloc>()
+            ..add(const GetAllTodosEvent(skip: 0, limit: 10)),
         ),
       ],
       child: MaterialApp.router(

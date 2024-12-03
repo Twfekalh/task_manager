@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/features/Todo/domain/usecase/get_todo_by_id_usecase.dart';
 import 'package:task_manager/features/Todo/domain/usecase/get_todos_usecase.dart';
 
@@ -24,22 +25,32 @@ import '../../features/auth/domain/use case/login_user _UseCase.dart';
 import '../../features/auth/domain/use case/refresh_session_UseCase.dart';
 import '../../features/auth/presentation/bloc/log_in_bloc/log_in_bloc.dart';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+import '../network/network_info.dart';
+
 final sl = GetIt.instance;
 
 Future<void> setupLocator() async {
-  // Registering HTTP and Dio clients
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<Dio>(() => Dio());
 
-  // Registering Todo Data Sources
+  sl.registerLazySingleton<NetworkInfo>(
+      () => NetworkInfo(connectivity: Connectivity()));
+
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
   sl.registerLazySingleton<TodoRemoteDataSource>(
-    () => TodoRemoteDataSourceImpl(client: sl<http.Client>(), dio: sl<Dio>()),
+    () => TodoRemoteDataSourceImpl(
+      dio: sl<Dio>(),
+      networkInfo: sl<NetworkInfo>(), // Pass NetworkInfo here
+    ),
   );
   sl.registerLazySingleton<TodoLocalDataSource>(
-    () => TodoLocalDataSourceImpl(sharedPreferences: sl()),
+    () => TodoLocalDataSourceImpl(sharedPreferences: sl<SharedPreferences>()),
   );
 
-  // Registering Todo Repository
   sl.registerLazySingleton<TodoRepository>(
     () => TodoRepositoryImpl(
       remoteDataSource: sl<TodoRemoteDataSource>(),
@@ -47,7 +58,6 @@ Future<void> setupLocator() async {
     ),
   );
 
-  // Registering Todo Use Cases
   sl.registerLazySingleton<GetTodosUseCase>(
       () => GetTodosUseCase(sl<TodoRepository>()));
   sl.registerLazySingleton<AddTodoUseCase>(
@@ -64,7 +74,6 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<GetTodoByIdUseCase>(
       () => GetTodoByIdUseCase(sl<TodoRepository>()));
 
-  // Registering Todo Bloc
   sl.registerFactory<TodoBlocBloc>(() => TodoBlocBloc(
         getAllTodos: sl<GetTodosUseCase>(),
         getTodoById: sl<GetTodoByIdUseCase>(),
@@ -74,13 +83,11 @@ Future<void> setupLocator() async {
         getRandomTodo: sl<GetRandomTodoUseCase>(),
       ));
 
-  // Registering Auth Data Sources
   sl.registerLazySingleton<UserRemoteDataSource>(
       () => UserRemoteDataSource('https://dummyjson.com/auth/login'));
 
   sl.registerLazySingleton<LocalUserDataSource>(() => LocalUserDataSource());
 
-  // Registering Auth Repository
   sl.registerLazySingleton<UserRepository>(
     () => UserRepositoryImpl(
       remoteDataSource: sl<UserRemoteDataSource>(),
@@ -88,14 +95,12 @@ Future<void> setupLocator() async {
     ),
   );
 
-  // Registering Auth Use Cases
   sl.registerLazySingleton<LoginUser>(() => LoginUser(sl<UserRepository>()));
   sl.registerLazySingleton<FetchUserData>(
       () => FetchUserData(sl<UserRepository>()));
   sl.registerLazySingleton<RefreshSession>(
       () => RefreshSession(sl<UserRepository>()));
 
-  // Registering LogIn Bloc
   sl.registerFactory<LogInBloc>(
     () => LogInBloc(
       loginUser: sl<LoginUser>(),
